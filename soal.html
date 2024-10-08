@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitung Seberapa Lama Anda Hidup</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Menghitung Seberapa Lama Anda Hidup</h1>
+        <div id="form-section">
+            <form id="life-form">
+                <label for="name">Masukkan Nama Kamu:</label>
+                <input type="text" id="name" required placeholder="Nama Kamu">
+
+                <label for="birth-date">Masukkan Tanggal Lahir:</label>
+                <input type="number" id="birth-date" min="1" max="31" required placeholder="1-31">
+
+                <label for="birth-month">Masukkan Bulan Lahir:</label>
+                <input type="number" id="birth-month" min="1" max="12" required placeholder="1-12">
+
+                <label for="birth-year">Masukkan Tahun Lahir:</label>
+                <input type="number" id="birth-year" min="1900" max="2024" required placeholder="Misalnya 1990">
+
+                <button type="submit">Hitung</button>
+            </form>
+        </div>
+
+        <div id="result-section" style="display:none;">
+            <h2>======== Hasil ========</h2>
+            <p id="result-name"></p>
+            <p id="result-day"></p>
+            <p id="result-lived"></p>
+            <p id="result-age"></p>
+            <p id="motivation-message"></p> <!-- Motivasi sesuai umur -->
+
+            <div>
+                <label>Ingin mengulanginya?</label><br>
+                <button id="repeat-yes">Ya</button>
+                <button id="repeat-no">Tidak</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
